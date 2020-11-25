@@ -1,0 +1,39 @@
+version: "3.3"
+
+services: 
+    nodejs: 
+        build: 
+            context: .
+            dockerfile: ./node.dockerfile
+        restart: unless-stopped
+        ports:
+            - "3000:3000"
+        volumes: 
+            - ./back-end:/app/back-end
+            - ./front-end:/app/front-end
+        working_dir: "/app"
+        tty: true
+
+    db:
+        image: mysql:5.7
+        volumes: 
+            - db_data:/var/lib/mysql
+        restart: always
+        ports: 
+            - "3306:3306"
+        environment:
+            # MYSQL_RANDOM_ROOT_PASSWORD: '1'
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: mysql
+            MYSQL_USER: mysql
+            MYSQL_PASSWORD: mysql
+    
+    adminer:
+        depends_on: 
+            - db
+        image: adminer:latest
+        ports:
+            - "8888:8080"
+
+volumes: 
+    db_data: {}
