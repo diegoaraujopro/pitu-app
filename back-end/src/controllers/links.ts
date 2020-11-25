@@ -1,8 +1,6 @@
 import { Link } from './../models/link';
 import {Request, Response} from 'express';
-
-const links: Link[] = [];
-let nextId: number = 0;
+import linksRepository from '../repositories/linksRepository';
 
 function generateCode() {
     let text: string = '';
@@ -18,35 +16,35 @@ function getRoot(req: Request, res: Response) {
     res.send('getRoot');
 }
 
-function getLink(req: Request, res: Response) {
+async function getLink(req: Request, res: Response) {
     const code = req.params.code as string;
-    const link = links.find(item => item.code === code);
+    const link = await linksRepository.findByCode(code);
     if (!link) 
         res.sendStatus(404);
     else 
         res.json(link);
-    
 }
 
-function postLink(req: Request, res: Response) {
+async function postLink(req: Request, res: Response) {
     const link = req.body as Link;
-    link.id = ++nextId;
     link.code = generateCode();
     link.hits = 0;
 
-    links.push(link);
+    const result = await linksRepository.add(link);
+    
+    if (!result.id) return res.sendStatus(400);
 
+    link.id = result.id!;
     res.status(201).json(link);
 }
 
-function hitLink(req: Request, res: Response) {
+async function hitLink(req: Request, res: Response) {
     const code = req.params.code as string;
-    const index = links.findIndex(item => item.code === code);
-    if(!index)
-        res.sendStatus(204);
-    else
-        links[index].hits!++;
-        res.json(links[index]);
+    const link = await linksRepository.hit(code);
+    if(!link)
+        res.sendStatus(404);
+    else 
+        res.json(link);
 }
 
 export default {

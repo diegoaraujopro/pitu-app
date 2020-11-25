@@ -13,6 +13,8 @@ services:
             - ./front-end:/app/front-end
         working_dir: "/app"
         tty: true
+        links: 
+            - db
 
     db:
         image: mysql:5.7
