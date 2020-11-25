@@ -15,11 +15,17 @@ function generateCode() {
 }
 
 function getRoot(req: Request, res: Response) {
-    res.send('app funcionando');
+    res.send('getRoot');
 }
 
 function getLink(req: Request, res: Response) {
-    res.send('getLink');
+    const code = req.params.code as string;
+    const link = links.find(item => item.code === code);
+    if (!link) 
+        res.sendStatus(404);
+    else 
+        res.json(link);
+    
 }
 
 function postLink(req: Request, res: Response) {
@@ -34,7 +40,13 @@ function postLink(req: Request, res: Response) {
 }
 
 function hitLink(req: Request, res: Response) {
-    res.send('hitLink');
+    const code = req.params.code as string;
+    const index = links.findIndex(item => item.code === code);
+    if(!index)
+        res.sendStatus(204);
+    else
+        links[index].hits!++;
+        res.json(links[index]);
 }
 
 export default {
